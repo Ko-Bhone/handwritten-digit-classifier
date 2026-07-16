@@ -13,5 +13,5 @@ class DigitDataloader:
         y = data["y"].reshape(-1)
         y[y==10] = 0
         x = torch.tensor(x,dtype=torch.float)
-        y = torch.tensor(y,dtype=torch.log)
+        y = torch.tensor(y,dtype=torch.long)
         return x,y
