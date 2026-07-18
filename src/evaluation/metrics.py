@@ -4,37 +4,39 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
+from pathlib import Path
 
 class ModelEvaluator:
 
-    def get_predictions(self,model,x_test):
+    def get_predictions(self,model,x_test: torch.Tensor) -> torch.Tensor:
         model.eval()
         with torch.no_grad():
             output = model(x_test)
             predictions = torch.argmax(output,dim=1)
         return predictions
 
-    def accuracy(self,model,x_test,y_test):
+    def accuracy(self,model,x_test: torch.Tensor,y_test: torch.Tensor) -> float:
         predictions = self.get_predictions(model,x_test)
         correct = (predictions == y_test).sum().item()
         total = y_test.size(0)
         accuracy = (correct / total) * 100
         return accuracy
 
-    def calculate_metrics(self,model,x_test,y_test):
+    def calculate_metrics(self,model,x_test:torch.Tensor,y_test:torch.Tensor) -> dict:
         predictions = self.get_predictions(model,x_test)
-        y_true = y_test.numpy()
-        y_pred = predictions.numpy()
+        y_true = y_test.cpu().numpy()
+        y_pred = predictions.cpu().numpy()
         metric = {"accuracy":accuracy_score(y_true,y_pred),
-                  "precision":precision_score(y_true,y_pred,average="macro"),
-                  "recall":recall_score(y_true,y_pred,average="macro"),
-                  "f1_score":f1_score(y_true,y_pred,average="macro")}
+                  "precision":precision_score(y_true,y_pred,average="macro",zero_division=0),
+                  "recall":recall_score(y_true,y_pred,average="macro",zero_division=0),
+                  "f1_score":f1_score(y_true,y_pred,average="macro",zero_division=0),}
 
         return metric
 
-    def plot_confusion_matrix(self,model,x_test,y_test,save_path="figures/confusion_matrix.png"):
+    def plot_confusion_matrix(self,model,x_test:torch.Tensor,
+                              y_test:torch.Tensor,save_path:str | Path="figures/confusion_matrix.png"):
         predictions = self.get_predictions(model,x_test)
-        cm = confusion_matrix(y_test.numpy(),predictions.numpy())
+        cm = confusion_matrix(y_test.cpu().numpy(),predictions.cpu().numpy())
         display = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=range(10))
         fig, ax = plt.subplots(figsize=(8,8))
         display.plot(cmap="Blues",ax=ax,colorbar=True)
