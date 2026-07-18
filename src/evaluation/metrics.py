@@ -1,7 +1,9 @@
 import torch
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score)
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
+import os
+import seaborn as sns
 
 class ModelEvaluator:
 
@@ -30,15 +32,27 @@ class ModelEvaluator:
 
         return metric
 
-    def plot_confusion_matrix(self,model,x_test,y_test):
+    def plot_confusion_matrix(self,model,x_test,y_test,save_path="figures/confusion_matrix.png"):
         predictions = self.get_predictions(model,x_test)
         cm = confusion_matrix(y_test.numpy(),predictions.numpy())
-        plt.figure(figsize=(8,6))
-        plt.imshow(cm,interpolation="nearest")
-        plt.title("Confusion Matrix")
-        plt.colorbar()
-        plt.xlabel("Predicted Label")
-        plt.ylabel("True Label")
-        plt.xticks(range(10))
-        plt.yticks(range(10))
+        display = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=range(10))
+        fig, ax = plt.subplots(figsize=(8,8))
+        display.plot(cmap="Blues",ax=ax,colorbar=True)
+        plt.tight_layout()
+        os.makedirs(os.path.dirname(save_path),exist_ok=True)
+        plt.savefig(save_path,dpi=300)
         plt.show()
+        print(f"Confusion matrix Saved -> {save_path}")
+
+    def plot_loss_curve(self,loss_history,save_path="figures/loss_curve.png"):
+        plt.figure(figsize=(8,5))
+        plt.plot(loss_history,linewidth=2)
+        plt.title("Training Loss Curve")
+        plt.xlabel("Epochs")
+        plt.ylabel("Loss")
+        plt.grid(True)
+        plt.tight_layout()
+        os.makedirs(os.path.dirname(save_path),exist_ok=True)
+        plt.savefig(save_path,dpi=300)
+        plt.show()
+        print(f"Loss Curve Saved -> {save_path}")
