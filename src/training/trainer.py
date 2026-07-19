@@ -31,13 +31,18 @@ class Trainer:
             self.val_loss_history.append(val_loss)
             if val_loss < self.best_val_loss:
                 self.best_val_loss = val_loss
-                self.best_model_state = (self.model.state_dict().copy())
+                self.best_model_state = {
+                    key: value.clone()
+                    for key, value in self.model.state_dict().items()
+                }
 
             if epoch % 50 == 0:
                 print(f"""
                         Epoch : {epoch}
                         Train Loss : {loss.item():.4f}
                         Val Loss   : {val_loss:.4f}""")
+        print("Training loop Finished")
+
 
     def validate(self, x_val: torch.Tensor,
                  y_val: torch.Tensor):
@@ -50,9 +55,10 @@ class Trainer:
     def save_model(self, path:str | Path):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        if self.best_model_state is not None:
+        if self.best_model_state is None:
             raise RuntimeError(
-                "No trained model found. Run taun() first")
+                "No trained model found. Run train() first."
+            )
         torch.save(self.best_model_state, path)
 
     def predict(self, x: torch.Tensor):
