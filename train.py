@@ -6,6 +6,7 @@ from src.training.trainer import Trainer
 from src.evaluation.metrics import ModelEvaluator
 from src.config import (DATA_PATH,MODEL_PATH,LEARNING_RATE,EPOCHS)
 from src.data.eda import DataAnalyzer
+from predict import main as predict
 
 
 
@@ -56,6 +57,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    predict()
 
 
 

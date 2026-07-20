@@ -31,7 +31,7 @@ class DataAnalyzer:
         print("*"*20)
         print("Missing Values Check!")
         print("*"*20)
-        print("Total Missing Values: {missing}")
+        print(f"Total Missing Values: {missing}")
 
         if missing == 0:
             print("Dataset is Clean")
