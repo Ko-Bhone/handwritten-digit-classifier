@@ -14,6 +14,8 @@ def main() -> None:
     x,y = loader.load()
     analyzer = DataAnalyzer(x, y)
     analyzer.dataset_info()
+    analyzer.missing_values()
+    analyzer.label_distribution()
     print("X Shape:", x.shape)
     print("Y Shape:", y.shape)
     x_train, x_val, x_test, y_train, y_val, y_test = DataPreprocessor.split_data(x, y)
