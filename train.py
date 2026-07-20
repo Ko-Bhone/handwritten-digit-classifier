@@ -5,12 +5,15 @@ from src.models.neural_network import DigitClassifier
 from src.training.trainer import Trainer
 from src.evaluation.metrics import ModelEvaluator
 from src.config import (DATA_PATH,MODEL_PATH,LEARNING_RATE,EPOCHS)
+from src.data.eda import DataAnalyzer
 
 
 
 def main() -> None:
     loader = DigitDataLoader(DATA_PATH)
     x,y = loader.load()
+    analyzer = DataAnalyzer(x, y)
+    analyzer.dataset_info()
     print("X Shape:", x.shape)
     print("Y Shape:", y.shape)
     x_train, x_val, x_test, y_train, y_val, y_test = DataPreprocessor.split_data(x, y)
@@ -32,9 +35,9 @@ def main() -> None:
     print(f"Test Accuracy: {accuracy:.2f}%")
 
     prediction = trainer.predict(x_test[:5])
-    print("Prediction", prediction)
-    print("Actual")
-    print(y_test[:5])
+    print("Sample Prediction")
+    for pred, actual in zip(prediction, y_test[:5].tolist()):
+        print(f"Prediction:{pred} | Actual:{actual}")
 
     metrics = evaluator.calculate_metrics(model, x_test, y_test)
     print("\n===== Evaluation Metrics =====")
