@@ -13,9 +13,8 @@ class DigitDataLoader:
             raise FileNotFoundError(
                 f"Dataset not found: {self.data_path}")
         data = loadmat(self.data_path)
-        x = data["X"]
+        x = torch.from_numpy(data["X"]).float()
         y = data["y"].reshape(-1)
         y[y==10] = 0
-        x = torch.from_numpy(x).float()
         y = torch.from_numpy(y).long()
         return x,y

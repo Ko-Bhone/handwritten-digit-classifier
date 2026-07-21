@@ -7,10 +7,13 @@ from src.evaluation.metrics import ModelEvaluator
 from src.config import (DATA_PATH,MODEL_PATH,LEARNING_RATE,EPOCHS)
 from src.data.eda import DataAnalyzer
 from predict import main as predict
+from src.utils.logger import logger
+
 
 
 
 def main() -> None:
+    logger.info("Loading dataset...")
     loader = DigitDataLoader(DATA_PATH)
     x,y = loader.load()
     analyzer = DataAnalyzer(x, y)
@@ -22,6 +25,7 @@ def main() -> None:
     analyzer.average_digit_image()
     print("X Shape:", x.shape)
     print("Y Shape:", y.shape)
+    logger.info("Splitting dataset...")
     x_train, x_val, x_test, y_train, y_val, y_test = DataPreprocessor.split_data(x, y)
 
     model = DigitClassifier()
@@ -32,10 +36,12 @@ def main() -> None:
     print(f"Validation : {len(x_val)}")
     print(f"Test       : {len(x_test)}")
 
+    logger.info("Training model...")
     trainer = Trainer(model=model, lr=LEARNING_RATE, epochs=EPOCHS)
     trainer.train(x_train, y_train, x_val, y_val)
     trainer.save_model(MODEL_PATH)
 
+    logger.info("Evaluating model...")
     evaluator = ModelEvaluator()
     accuracy = evaluator.accuracy(model, x_test, y_test)
     print(f"Test Accuracy: {accuracy:.2f}%")
@@ -52,8 +58,10 @@ def main() -> None:
     print(f"Recall    : {metrics['recall']:.4f}")
     print(f"F1 Score  : {metrics['f1_score']:.4f}")
 
+    logger.info("Saving figures...")
     evaluator.plot_confusion_matrix(model, x_test, y_test)
     evaluator.plot_loss_curve(trainer.loss_history)
+    logger.info("Training completed successfully.")
 
 if __name__ == "__main__":
     main()
