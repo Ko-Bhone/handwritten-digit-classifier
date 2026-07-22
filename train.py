@@ -8,60 +8,67 @@ from src.config import (DATA_PATH,MODEL_PATH,LEARNING_RATE,EPOCHS)
 from src.data.eda import DataAnalyzer
 from predict import main as predict
 from src.utils.logger import logger
-
+import mlflow
+import mlflow.pytorch
 
 
 
 def main() -> None:
-    logger.info("Loading dataset...")
-    loader = DigitDataLoader(DATA_PATH)
-    x,y = loader.load()
-    analyzer = DataAnalyzer(x, y)
-    analyzer.dataset_info()
-    analyzer.missing_values()
-    analyzer.label_distribution()
-    analyzer.show_random_samples()
-    analyzer.pixel_statics()
-    analyzer.average_digit_image()
-    print("X Shape:", x.shape)
-    print("Y Shape:", y.shape)
-    logger.info("Splitting dataset...")
-    x_train, x_val, x_test, y_train, y_val, y_test = DataPreprocessor.split_data(x, y)
+    mlflow.set_experiment("Handwritten Digit Classification")
+    with mlflow.start_run():
+        logger.info("Loading dataset...")
+        loader = DigitDataLoader(DATA_PATH)
+        x, y = loader.load()
+        analyzer = DataAnalyzer(x, y)
+        analyzer.dataset_info()
+        analyzer.missing_values()
+        analyzer.label_distribution()
+        analyzer.show_random_samples()
+        analyzer.pixel_statics()
+        analyzer.average_digit_image()
+        print("X Shape:", x.shape)
+        print("Y Shape:", y.shape)
 
-    model = DigitClassifier()
-    print("Train:", x_train.shape)
-    print("Test:", x_test.shape)
-    print("\nDataset Split")
-    print(f"Train      : {len(x_train)}")
-    print(f"Validation : {len(x_val)}")
-    print(f"Test       : {len(x_test)}")
+        logger.info("Splitting dataset...")
+        x_train, x_val, x_test, y_train, y_val, y_test = DataPreprocessor.split_data(x, y)
+        model = DigitClassifier()
+        print("Train:", x_train.shape)
+        print("Test:", x_test.shape)
+        print("\nDataset Split")
+        print(f"Train      : {len(x_train)}")
+        print(f"Validation : {len(x_val)}")
+        print(f"Test       : {len(x_test)}")
+        mlflow.log_param("learning_rate", LEARNING_RATE)
+        mlflow.log_param("epochs", EPOCHS)
 
-    logger.info("Training model...")
-    trainer = Trainer(model=model, lr=LEARNING_RATE, epochs=EPOCHS)
-    trainer.train(x_train, y_train, x_val, y_val)
-    trainer.save_model(MODEL_PATH)
+        logger.info("Training model...")
+        trainer = Trainer(model=model, lr=LEARNING_RATE, epochs=EPOCHS)
+        trainer.train(x_train, y_train, x_val, y_val)
+        trainer.save_model(MODEL_PATH)
 
-    logger.info("Evaluating model...")
-    evaluator = ModelEvaluator()
-    accuracy = evaluator.accuracy(model, x_test, y_test)
-    print(f"Test Accuracy: {accuracy:.2f}%")
+        logger.info("Evaluating model...")
+        evaluator = ModelEvaluator()
+        accuracy = evaluator.accuracy(model, x_test, y_test)
+        print(f"Test Accuracy: {accuracy:.2f}%")
 
-    prediction = trainer.predict(x_test[:5])
-    print("Sample Prediction")
-    for pred, actual in zip(prediction, y_test[:5].tolist()):
-        print(f"Prediction:{pred} | Actual:{actual}")
+        prediction = trainer.predict(x_test[:5])
+        print("Sample Prediction")
+        for pred, actual in zip(prediction, y_test[:5].tolist()):
+            print(f"Prediction:{pred} | Actual:{actual}")
 
-    metrics = evaluator.calculate_metrics(model, x_test, y_test)
-    print("\n===== Evaluation Metrics =====")
-    print(f"Accuracy  : {metrics['accuracy']:.4f}")
-    print(f"Precision : {metrics['precision']:.4f}")
-    print(f"Recall    : {metrics['recall']:.4f}")
-    print(f"F1 Score  : {metrics['f1_score']:.4f}")
+        metrics = evaluator.calculate_metrics(model, x_test, y_test)
+        print("\n===== Evaluation Metrics =====")
+        print(f"Accuracy  : {metrics['accuracy']:.4f}")
+        print(f"Precision : {metrics['precision']:.4f}")
+        print(f"Recall    : {metrics['recall']:.4f}")
+        print(f"F1 Score  : {metrics['f1_score']:.4f}")
 
-    logger.info("Saving figures...")
-    evaluator.plot_confusion_matrix(model, x_test, y_test)
-    evaluator.plot_loss_curve(trainer.loss_history)
-    logger.info("Training completed successfully.")
+
+        logger.info("Saving figures...")
+        evaluator.plot_confusion_matrix(model, x_test, y_test)
+        evaluator.plot_loss_curve(trainer.loss_history)
+        logger.info("Training completed successfully.")
+
 
 if __name__ == "__main__":
     main()
