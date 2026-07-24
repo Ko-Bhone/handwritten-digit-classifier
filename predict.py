@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 
-
-
 def main():
     loader = DigitDataLoader(DATA_PATH)
     x,y = loader.load()
@@ -40,7 +38,7 @@ def main():
     save_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(save_path,dpi=300)
     print(f"Prediction Figure Saved -> {save_path}")
-    plt.show()
+    plt.close()
 
 if __name__ == "__main__":
     main()

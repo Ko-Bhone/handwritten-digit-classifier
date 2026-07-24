@@ -31,15 +31,18 @@ def main() -> None:
 
         logger.info("Splitting dataset...")
         x_train, x_val, x_test, y_train, y_val, y_test = DataPreprocessor.split_data(x, y)
-        model = DigitClassifier()
         print("Train:", x_train.shape)
         print("Test:", x_test.shape)
         print("\nDataset Split")
         print(f"Train      : {len(x_train)}")
         print(f"Validation : {len(x_val)}")
         print(f"Test       : {len(x_test)}")
-        mlflow.log_param("learning_rate", LEARNING_RATE)
-        mlflow.log_param("epochs", EPOCHS)
+        model = DigitClassifier()
+
+        mlflow.log_param("Learning Rate",LEARNING_RATE)
+        mlflow.log_param("Epochs",EPOCHS)
+        mlflow.log_param("optimizer","SGD")
+        mlflow.log_param("loss_function","CrossEntropyLoss")
 
         logger.info("Training model...")
         trainer = Trainer(model=model, lr=LEARNING_RATE, epochs=EPOCHS)
@@ -57,22 +60,30 @@ def main() -> None:
             print(f"Prediction:{pred} | Actual:{actual}")
 
         metrics = evaluator.calculate_metrics(model, x_test, y_test)
+        mlflow.log_metrics(metrics)
         print("\n===== Evaluation Metrics =====")
         print(f"Accuracy  : {metrics['accuracy']:.4f}")
         print(f"Precision : {metrics['precision']:.4f}")
         print(f"Recall    : {metrics['recall']:.4f}")
         print(f"F1 Score  : {metrics['f1_score']:.4f}")
-
+        mlflow.log_metric("accuracy", metrics["accuracy"])
+        mlflow.log_metric("precision", metrics["precision"])
+        mlflow.log_metric("recall", metrics["recall"])
+        mlflow.log_metric("f1_score", metrics["f1_score"])
 
         logger.info("Saving figures...")
         evaluator.plot_confusion_matrix(model, x_test, y_test)
         evaluator.plot_loss_curve(trainer.loss_history)
         logger.info("Training completed successfully.")
 
+        predict()
+        mlflow.log_artifact("figures/confusion_matrix.png")
+        mlflow.log_artifact("figures/loss_curve.png")
+        mlflow.log_artifact("figures/prediction_result.png")
+
 
 if __name__ == "__main__":
     main()
-    predict()
 
 
 
