@@ -20,13 +20,18 @@ def test_health():
     assert data["model_loaded"] is True
 
 def test_predict():
-    with open(SAMPLE_FILE, "r", encoding="utf-8") as f:
+    with open("tools/sample.json", "r", encoding="utf-8") as f:
         sample = json.load(f)
     response = client.post("/predict", json=sample)
     assert response.status_code == 200
     data = response.json()
     assert "prediction" in data
     assert "confidence" in data
+
+def test_invalid_input():
+    response = client.post("/predict",json={"pixels":[1,2,3]})
+    assert response.status_code == 422
+
 
 
 
