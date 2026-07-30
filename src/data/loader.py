@@ -7,7 +7,6 @@ class DigitDataLoader:
     def __init__(self,data_path:str):
         self.data_path = Path(data_path)
 
-
     def load(self) -> tuple[torch.Tensor, torch.Tensor]:
         if not self.data_path.exists():
             raise FileNotFoundError(
