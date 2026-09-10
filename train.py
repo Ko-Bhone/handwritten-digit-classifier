@@ -12,7 +12,6 @@ import mlflow
 import mlflow.pytorch
 
 
-
 def main() -> None:
     mlflow.set_experiment("Handwritten Digit Classification")
     with mlflow.start_run():
