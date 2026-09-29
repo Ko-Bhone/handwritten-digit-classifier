@@ -72,7 +72,7 @@ def main() -> None:
 
         logger.info("Saving figures...")
         evaluator.plot_confusion_matrix(model, x_test, y_test)
-        evaluator.plot_loss_curve(trainer.loss_history)
+        evaluator.plot_loss_curve(trainer.loss_history, trainer.val_loss_history)
         logger.info("Training completed successfully.")
 
         predict()
@@ -83,7 +83,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
 
 
 
