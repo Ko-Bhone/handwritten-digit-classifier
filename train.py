@@ -36,10 +36,10 @@ def main() -> None:
 
         model = DigitClassifier()
 
-        mlflow.log_param("learning_rate",LEARNING_RATE)
-        mlflow.log_param("epochs",EPOCHS)
-        mlflow.log_param("optimizer","SGD")
-        mlflow.log_param("loss_function","CrossEntropyLoss")
+        mlflow.log_param("learning_rate", LEARNING_RATE)
+        mlflow.log_param("epochs", EPOCHS)
+        mlflow.log_param("optimizer", "SGD")
+        mlflow.log_param("loss_function", "CrossEntropyLoss")
 
         logger.info("Training model...")
         trainer = Trainer(model=model, lr=LEARNING_RATE, epochs=EPOCHS)
