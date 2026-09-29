@@ -5,6 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 MODELS_DIR = BASE_DIR / "models"
 FIGURES_DIR = BASE_DIR / "figures"
+LOGS_DIR = BASE_DIR / "logs"
 
 DATA_PATH = ("/Users/macbookpro/Downloads/Telegram Desktop/data/ex3data1.mat")
 MODEL_PATH = ("./models/digit_classifier.pth")
