@@ -5,7 +5,6 @@ from src.training.trainer import Trainer
 from src.evaluation.metrics import ModelEvaluator
 from src.config import (DATA_PATH, MODEL_PATH, LEARNING_RATE, EPOCHS)
 from src.data.eda import DataAnalyzer
-from predict import main as predict
 from src.utils.logger import logger
 import mlflow
 import mlflow.pytorch
@@ -37,7 +36,7 @@ def main() -> None:
 
         model = DigitClassifier()
 
-        mlflow.log_param("learning Rate",LEARNING_RATE)
+        mlflow.log_param("learning_rate",LEARNING_RATE)
         mlflow.log_param("epochs",EPOCHS)
         mlflow.log_param("optimizer","SGD")
         mlflow.log_param("loss_function","CrossEntropyLoss")
@@ -65,20 +64,15 @@ def main() -> None:
         print(f"Recall    : {metrics['recall']:.4f}")
         print(f"F1 Score  : {metrics['f1_score']:.4f}")
 
-        mlflow.log_metric("accuracy", metrics["accuracy"])
-        mlflow.log_metric("precision", metrics["precision"])
-        mlflow.log_metric("recall", metrics["recall"])
-        mlflow.log_metric("f1_score", metrics["f1_score"])
+        mlflow.log_metrics(metrics)
 
         logger.info("Saving figures...")
         evaluator.plot_confusion_matrix(model, x_test, y_test)
         evaluator.plot_loss_curve(trainer.loss_history, trainer.val_loss_history)
 
-        predict()
+
         mlflow.log_artifact("figures/confusion_matrix.png")
         mlflow.log_artifact("figures/loss_curve.png")
-        mlflow.log_artifact("figures/prediction_result.png")
-
         mlflow.pytorch.log_model(model, artifact_path="model")
         logger.info("Training complete Successfully!")
 
