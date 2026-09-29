@@ -4,21 +4,20 @@ import torch.optim as optim
 from pathlib import Path
 
 class Trainer:
-    def __init__(self, model:nn.Module, lr:float=0.1, epochs:int=300):
+    def __init__(self, model:nn.Module, lr:float=0.1, epochs:int=300) -> None:
         self.model = model
         self.lr = lr
         self.epochs = epochs
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr)
-        self.loss_history = []
-        self.val_loss_history = []
+        self.loss_history : list[float]= []
+        self.val_loss_history : list[float]= []
         self.best_val_loss = float("inf")
-        self.best_model_state = None
+        self.best_model_state: dict[str, torch.Tensor] | None = None
 
-    def train(self, x_train:torch.Tensor,
-              y_train: torch.Tensor,
-              x_val: torch.Tensor,
-              y_val: torch.Tensor):
+    def train(self, x_train:torch.Tensor, y_train: torch.Tensor,
+              x_val: torch.Tensor, y_val: torch.Tensor):
+
         for epoch in range(self.epochs):
             self.model.train()
             outputs = self.model(x_train)
@@ -29,10 +28,11 @@ class Trainer:
             self.loss_history.append(loss.item())
             val_loss = self.validate(x_val, y_val)
             self.val_loss_history.append(val_loss)
+
             if val_loss < self.best_val_loss:
                 self.best_val_loss = val_loss
                 self.best_model_state = {
-                    key: value.clone()
+                    key: value.detach().clone()
                     for key, value in self.model.state_dict().items()
                 }
 
@@ -42,26 +42,33 @@ class Trainer:
                         Train Loss : {loss.item():.4f}
                         Val Loss   : {val_loss:.4f}""")
         print("Training loop Finished")
+        print(f"Best validation loss : {self.best_val_loss:.4f}")
 
 
     def validate(self, x_val: torch.Tensor,
-                 y_val: torch.Tensor):
+                 y_val: torch.Tensor) -> float:
         self.model.eval()
         with torch.no_grad():
             outputs = self.model(x_val)
             loss = self.criterion(outputs, y_val)
         return loss.item()
 
+    def restore_best_model(self) -> None:
+        if self.best_model_state is None:
+            raise RuntimeError("No best model found. Run train() first.")
+        self.model.load_state_dict(self.best_model_state)
+
     def save_model(self, path:str | Path):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         if self.best_model_state is None:
-            raise RuntimeError(
-                "No trained model found. Run train() first."
-            )
+            raise RuntimeError("No trained model found. Run train() first.")
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(self.best_model_state, path)
 
-    def predict(self, x: torch.Tensor):
+    def predict(self, x: torch.Tensor) -> torch.Tensor:
+
         self.model.eval()
         with torch.no_grad():
             outputs = self.model(x)
