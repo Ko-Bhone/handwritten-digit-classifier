@@ -6,7 +6,7 @@ A production-style Machine Learning project that recognizes handwritten digits (
 
 This project was developed to showcase the skills required for a Junior Machine Learning Engineer role. It follows a clean project structure and includes model training, evaluation, experiment tracking with MLflow, and inference through a FastAPI REST API.
 
-## Features
+## Featuresx`
 
 * Handwritten digit classification (0–9)
 * Neural Network implemented with PyTorch
@@ -45,30 +45,107 @@ Dataset Information
 * Image size: 20 × 20 pixels
 * Flattened input size: 400 features
 * Classes: 10 (digits 0–9)
+````markdown
+
+## Data Preparation
+
+The dataset is split into three subsets:
+
+| Split | Percentage | Purpose |
+|---|---:|---|
+| Training | 70% | Used to train the neural network |
+| Validation | 15% | Used to monitor model performance and select the best model |
+| Test | 15% | Used for final evaluation on unseen data |
+
+A stratified split is used to preserve the class distribution across
+the training, validation, and test sets.
+
+A fixed random seed (`random_state=42`) is used to make the dataset
+split reproducible across runs.
+
+### Data Splitting Strategy
+
+```text
+Original Dataset (100%)
+          |
+          v
+    +-----+------+
+    |            |
+    v            v
+Training       Temporary
+  70%            30%
+                  |
+            +-----+-----+
+            |           |
+            v           v
+       Validation     Test
+          15%          15%
+````
+
+The test set is kept separate from the training process and is used
+only for final model evaluation.
+
+```
+```
 
 ---
 
+````markdown
 ## Model Architecture
 
+The project uses a simple fully connected neural network (MLP)
+as a baseline classifier.
+
+```text
+Input Image
+20 × 20 pixels
+     |
+     v
+Flatten
+400 features
+     |
+     v
+Linear Layer
+400 → 25
+     |
+     v
+Sigmoid
+     |
+     v
+Linear Layer
+25 → 10
+     |
+     v
+10 Output Logits
+     |
+     v
+Digits 0-9
+````
+
+### Architecture Details
+
+| Layer         | Configuration    |
+| ------------- | ---------------- |
+| Input         | 400 features     |
+| Hidden Layer  | 25 neurons       |
+| Activation    | Sigmoid          |
+| Output Layer  | 10 neurons       |
+| Output        | Raw logits       |
+| Loss Function | CrossEntropyLoss |
+
+The output layer produces 10 logits corresponding to the digit
+classes 0 through 9.
+
+Softmax is not explicitly applied in the model because
+`CrossEntropyLoss` expects raw logits and handles the required
+normalization internally.
+
+The fully connected network is used as a baseline before exploring
+more advanced architectures such as convolutional neural networks.
+
 ```
-Input Layer (400)
-
-↓
-
-Linear (400 → 25)
-
-↓
-
-Sigmoid Activation
-
-↓
-
-Linear (25 → 10)
-
-↓
-
-Output Logits
 ```
+
 
 ### Loss Function
 
