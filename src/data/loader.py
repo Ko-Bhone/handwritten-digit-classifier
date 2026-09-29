@@ -2,7 +2,6 @@ import torch
 from scipy.io import loadmat
 from pathlib import Path
 
-
 class DigitDataLoader:
     def __init__(self,data_path:str):
         self.data_path = Path(data_path)

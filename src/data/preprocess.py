@@ -5,32 +5,16 @@ class DataPreprocessor:
     @staticmethod
     def split_data(x, y, train_size=0.70, validation_size=0.15, test_size=0.15, random_state=42):
         # Train split
-        x_train, x_temp, y_train, y_temp = train_test_split(
-            x,
-            y,
-            test_size=(validation_size + test_size),
-            random_state=random_state,
-            stratify=y
-        )
+        x_train, x_temp, y_train, y_temp = train_test_split(x, y, test_size=(validation_size + test_size),
+            random_state=random_state, stratify=y)
 
         # Validation/Test split
-        val_ratio = validation_size / (
-                validation_size + test_size
-        )
+        val_ratio = validation_size / (validation_size + test_size)
 
-        x_val, x_test, y_val, y_test = train_test_split(
-            x_temp,
-            y_temp,
-            train_size=val_ratio,
-            random_state=random_state,
-            stratify=y_temp
-        )
+        x_val, x_test, y_val, y_test = train_test_split(x_temp, y_temp, train_size=val_ratio,
+            random_state=random_state, stratify=y_temp)
 
         return (
-            x_train,
-            x_val,
-            x_test,
-            y_train,
-            y_val,
-            y_test
+            x_train, x_val, x_test,
+            y_train, y_val, y_test
         )
